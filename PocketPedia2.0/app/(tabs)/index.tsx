@@ -1,15 +1,16 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image } from "react-native";
 
 export default function AuthScreen() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const handleAuth = () => {
     if (!isLogin) {
-      // Signup validation
       if (!email || !password || !confirmPassword) {
         Alert.alert("Error", "All fields are required!");
         return;
@@ -18,58 +19,80 @@ export default function AuthScreen() {
         Alert.alert("Error", "Passwords do not match!");
         return;
       }
-
-      // Show success message
-      Alert.alert("Success", "Account created successfully!", [{ text: "OK" }]);
-
-      // Reset fields after signup
-      setEmail("");
-      setPassword("");
-      setConfirmPassword("");
-
-      // Switch to login mode after signup
-      setIsLogin(true);
+      Alert.alert("Success", "Account created successfully!", [
+        { text: "OK", onPress: () => setIsLogin(true) },
+      ]);
     } else {
-      // Login logic (You can replace this with actual authentication logic)
       if (!email || !password) {
-        Alert.alert("Error", "Please enter email and password!");
+        Alert.alert("Error", "Please enter both email and password!");
         return;
       }
-      Alert.alert("Success", "Logged in successfully!");
+      setIsAuthenticated(true);
     }
   };
 
+  // ✅ Show Home Screen if user is authenticated
+  if (isAuthenticated) {
+    return (
+      <View style={styles.container}>
+        {/* 🔹 App Logo in the Top-Left Corner */}
+        <Image source={require("../../assets/images/Logo.png")} style={styles.logo} />
+
+        {/* 🔹 Search Bar in the Top-Right Corner */}
+        <View style={styles.searchContainer}>
+          <TextInput
+            style={styles.searchBar}
+            placeholder="Search..."
+            placeholderTextColor="#bbb"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+        </View>
+
+        <Text style={styles.title}>Welcome to Home Page! 🎉</Text>
+
+        <TouchableOpacity style={styles.button} onPress={() => setIsAuthenticated(false)}>
+          <Text style={styles.buttonText}>Logout</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  // ✅ Show Login/Signup screen
   return (
     <View style={styles.container}>
+      {/* 🔹 App Logo in the Top-Left Corner */}
+      <Image source={require("../../assets/images/Logo.png")} style={styles.logo} />
+
       <Text style={styles.title}>{isLogin ? "Login" : "Sign Up"}</Text>
 
       <TextInput
         style={styles.input}
         placeholder="Email"
+        placeholderTextColor="#fff"
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
         autoCapitalize="none"
-        placeholderTextColor="#aaa"
       />
 
       <TextInput
         style={styles.input}
-        placeholder={isLogin ? "Password" : "Create Password"}
+        placeholder="Password"
+        placeholderTextColor="#fff"
         value={password}
         onChangeText={setPassword}
         secureTextEntry
-        placeholderTextColor="#aaa"
       />
 
       {!isLogin && (
         <TextInput
           style={styles.input}
           placeholder="Confirm Password"
+          placeholderTextColor="#fff"
           value={confirmPassword}
           onChangeText={setConfirmPassword}
           secureTextEntry
-          placeholderTextColor="#aaa"
         />
       )}
 
@@ -91,13 +114,34 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#121212",
+    backgroundColor: "#eee",  //Home page bg color
     padding: 20,
+  },
+  logo: {
+    position: "absolute",
+    top: 20,
+    left: 20,
+    width: 100,  // Adjust width as needed
+    height: 40,  // Adjust height as needed
+    resizeMode: "contain",
+  },
+  searchContainer: {
+    position: "absolute",
+    top: 20,
+    right: 20,
+  },
+  searchBar: {
+    width: 200,
+    height: 40,
+    backgroundColor: "#222",
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    color: "#fff",
   },
   title: {
     fontSize: 28,
     fontWeight: "bold",
-    color: "#fff",
+    color: "#bbb",
     marginBottom: 20,
   },
   input: {
@@ -114,8 +158,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 30,
     borderRadius: 8,
-    alignItems: "center",
-    width: "100%",
   },
   buttonText: {
     color: "#fff",
